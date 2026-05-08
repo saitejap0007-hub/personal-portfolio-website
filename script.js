@@ -66,15 +66,26 @@ if (heroH1) {
 
 // Animate skill bars on scroll
 const skillBars = document.querySelectorAll('.skill-fill');
+// Animate skill bars on scroll
 const skillObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
-      entry.target.style.width = entry.target.style.width; // Trigger animation
+      const targetWidth = entry.target.getAttribute('data-target-width');
+      if (targetWidth) entry.target.style.width = targetWidth;
+      skillObserver.unobserve(entry.target);
     }
   });
 }, { threshold: 0.5 });
 
-skillBars.forEach(bar => skillObserver.observe(bar));
+skillBars.forEach(bar => {
+  // Save the intended width from the inline style
+  const width = bar.style.width || bar.getAttribute('style')?.match(/width:\s*([^;]+)/)?.[1];
+  bar.setAttribute('data-target-width', width || '0%');
+  // Start from 0, then animate to target
+  bar.style.width = '0%';
+  skillObserver.observe(bar);
+});
+
 
 // Fade-in animation for sections on scroll
 const sections = document.querySelectorAll('.section');
